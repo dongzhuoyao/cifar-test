@@ -220,7 +220,7 @@ def inference(images,phase=True):
   norm1 = tf.contrib.layers.batch_norm(pool1,
                                     center=True, scale=True,
                                     is_training=phase,
-                                    scope='bn',name="bn1")
+                                    scope='bn')
 
   # conv2
   with tf.variable_scope('conv2') as scope:
@@ -239,7 +239,7 @@ def inference(images,phase=True):
   norm2 = tf.contrib.layers.batch_norm(conv2,
                                        center=True, scale=True,
                                        is_training=phase,
-                                       scope='bn', name="bn2")
+                                       scope='bn')
 
   # pool2
   pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],
