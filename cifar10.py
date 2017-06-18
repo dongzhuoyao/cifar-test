@@ -185,7 +185,7 @@ def inputs(eval_data):
   return images, labels
 
 
-def inference(images):
+def inference(images,phase=True):
   """Build the CIFAR-10 model.
 
   Args:
@@ -215,8 +215,12 @@ def inference(images):
   pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
                          padding='SAME', name='pool1')
   # norm1
-  norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
-                    name='norm1')
+  #norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm1')
+
+  norm1 = tf.contrib.layers.batch_norm(pool1,
+                                    center=True, scale=True,
+                                    is_training=phase,
+                                    scope='bn',name="bn1")
 
   # conv2
   with tf.variable_scope('conv2') as scope:
@@ -231,8 +235,12 @@ def inference(images):
     _activation_summary(conv2)
 
   # norm2
-  norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
-                    name='norm2')
+  #norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm2')
+  norm2 = tf.contrib.layers.batch_norm(conv2,
+                                       center=True, scale=True,
+                                       is_training=phase,
+                                       scope='bn', name="bn2")
+
   # pool2
   pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],
                          strides=[1, 2, 2, 1], padding='SAME', name='pool2')
@@ -352,9 +360,9 @@ def train(total_loss, global_step):
 
   # Compute gradients.
   with tf.control_dependencies([loss_averages_op]):
-    #opt = tf.train.GradientDescentOptimizer(lr)
+    opt = tf.train.GradientDescentOptimizer(lr)
     #opt = tf.train.MomentumOptimizer(lr,0.9)
-    opt = tf.train.AdamOptimizer(lr)
+    #opt = tf.train.AdamOptimizer(lr)
     grads = opt.compute_gradients(total_loss)
 
   # Apply gradients.
